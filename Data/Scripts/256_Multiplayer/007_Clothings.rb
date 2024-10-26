@@ -1,6 +1,9 @@
 class ClothingUtils
 
   def self.generateClothedBitmap(trainer_data, direction, current_frame)
+    if trainer_data.nil?
+      return nil
+    end
     action = trainer_data['action']
 
     baseBitmapFilename = getBaseOverworldSpriteFilename(action, trainer_data['skin_tone'])

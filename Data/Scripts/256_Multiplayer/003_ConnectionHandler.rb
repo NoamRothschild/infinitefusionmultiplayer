@@ -87,7 +87,7 @@ class ConnectionHandler
         storedPlace = "PC"
       end
 
-      msg_queue << {'msg'=> "#{sender} sent you his #{pkmn.name}!, it's waiting for you in your #{storedPlace}."}
+      $msg_queue << {'msg'=> "#{sender} sent you his #{pkmn.name}!, it's waiting for you in your #{storedPlace}."}
     end
   end
 
