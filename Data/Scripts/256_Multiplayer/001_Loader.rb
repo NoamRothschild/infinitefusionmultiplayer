@@ -15,7 +15,7 @@ class MultiplayerLoader
         end
       end
       puts "Thread publisher started!"
-      break
-    end
+      
   end
+
 end

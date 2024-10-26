@@ -225,8 +225,11 @@ def pbTrainerPCMenu
     case command
     when 0 then pbPCItemStorage
     when 1 then pbPCMailbox
-    when 2 then MultiplayerLoader.activate
-    else        break
+    when 2 then 
+      MultiplayerLoader.activate
+      break
+    else
+      break
     end
   end
 end
