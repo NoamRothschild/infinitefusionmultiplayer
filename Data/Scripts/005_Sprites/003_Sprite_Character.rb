@@ -138,6 +138,8 @@ class Sprite_Character < RPG::Sprite
 
   def updateCharacterBitmap
     if @character_name.start_with?("Multiplayer_")
+      @character.erase unless MultiplayerLoader.enabled?
+      
       puts "Detected multiplayer event!"
       arr = @character_name.split('_')
       player_id = arr[1].to_i

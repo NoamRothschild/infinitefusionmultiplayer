@@ -1,7 +1,6 @@
 $msg_queue = Queue.new
 
 class ConnectionHandler
-
   # instantiates & returns a connection to the Redis Database.
   def self.create_connection(host=nil, port=nil, password=nil)
     if host.nil? && port.nil? && password.nil?
@@ -27,7 +26,7 @@ class ConnectionHandler
   def self.subscribe(connection)
     sub_cnt = 0
 
-    thread = Thread.new do
+    subscribe_thread = Thread.new do
       connection.subscribe('location', 'gifts') do |on|
         on.subscribe { sub_cnt += 1 }
         on.message do |channel, msg|
@@ -36,7 +35,7 @@ class ConnectionHandler
             case channel
             when 'location' then $msg_queue << data
               # Running this from a thread causes Segmentation Fault, 
-              # being sent to an event which is always listening and executing from a safe place.
+              # data is being sent to an event which is always listening and executing from a safe place.
             when 'gifts' then handle_gift_packet(data)
             end
           rescue Exception => e
@@ -47,7 +46,7 @@ class ConnectionHandler
     end
 
     Thread.pass until sub_cnt == 2
-    thread
+    subscribe_thread
   end
 
   # This func always runs from an Event to allow for a safe execution place.

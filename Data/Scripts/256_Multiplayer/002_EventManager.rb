@@ -105,6 +105,13 @@ class EventManager
     end
   end
 
+  def self.delete_all()
+    @@events.each do |player_id, rf_event|
+      Rf.delete_event(rf_event, $game_map.map_id)
+      @@events.delete(player_id)
+    end
+  end
+
   def self.mapChangeThread
     map_id = $game_map.map_id
     thread = Thread.new do

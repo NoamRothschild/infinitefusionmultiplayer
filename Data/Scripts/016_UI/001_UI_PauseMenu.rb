@@ -118,6 +118,7 @@ class PokemonPauseMenu
     cmdQuit = -1
     cmdEndGame = -1
     cmdPC = -1
+    cmdQuickConnect = -1
     cmdDebugDebug = -1
     fkdebug = false
     if $PokemonSystem.debug
@@ -138,6 +139,7 @@ class PokemonPauseMenu
     commands[cmdTutorNet = commands.length] = _INTL("Tutor.net") if !pbInBugContest? && $PokemonSystem.tutornet == 1
     commands[cmdPokegear = commands.length] = _INTL("Pokégear") if $Trainer.has_pokegear
     commands[cmdTrainer = commands.length] = $Trainer.name
+    commands[cmdQuickConnect = commands.length] = _INTL("(IFM) - #{MultiplayerLoader.enabled? ? "ON" : "OFF"}")
     if pbInSafari?
       if Settings::SAFARI_STEPS <= 0
         @scene.pbShowInfo(_INTL("Balls: {1}", pbSafariState.ballcount))
@@ -192,6 +194,12 @@ class PokemonPauseMenu
           }
           # end
         end
+      #cmdQuickConnect INFINITE FUSION MULTIPLAYER SWITCH
+      elsif cmdQuickConnect >= 0 && command == cmdQuickConnect
+        MultiplayerLoader.enabled = !MultiplayerLoader.enabled?
+        commands[cmdQuickConnect] = _INTL("(IFM) - #{MultiplayerLoader.enabled? ? "ON" : "OFF"}")
+        pbMessage(_INTL("Set multiplayer to #{MultiplayerLoader.enabled? ? "ON" : "OFF"}."))
+        break
       # cmdPC = KurayPC #KurayX PC
       elsif cmdPC >= 0 && command == cmdPC
         # Prevent use in Elite 4 / Champion / Hall of Fame
