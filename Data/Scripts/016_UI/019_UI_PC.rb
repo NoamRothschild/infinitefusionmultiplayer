@@ -219,11 +219,13 @@ def pbTrainerPCMenu
     command = pbMessage(_INTL("What do you want to do?"),[
        _INTL("Item Storage"),
        _INTL("Mailbox"),
+       _INTL("Connect (Multiplayer)"),
        _INTL("Turn Off")
        ],-1,nil,command)
     case command
     when 0 then pbPCItemStorage
     when 1 then pbPCMailbox
+    when 2 then MultiplayerLoader.activate
     else        break
     end
   end

@@ -119,6 +119,7 @@ class Sprite_Wearable < RPG::Sprite
 
   def animate(action, frame=nil)
     @action = action
+    $action = action
     current_frame = @player_sprite.character.pattern if !frame
     direction = @player_sprite.character.direction
     crop_spritesheet(direction)

@@ -53,6 +53,15 @@ class Game_Map
     @display_y = 0
   end
 
+  def self.getTemplateEvent
+    map = load_data("Data/MultiplayerEvents.rxdata")
+    ev = map.events[1]
+    ev.x = 0
+    ev.y = 0
+    ev.name = "Multiplayer-LOADER"
+    return ev
+  end
+
   def setup(map_id)
     @map_id               = map_id
     @map = load_data(sprintf("Data/Map%03d.rxdata",map_id))
@@ -80,6 +89,11 @@ class Game_Map
     for i in @map.events.keys
       @events[i]          = Game_Event.new(@map_id, @map.events[i],self)
     end
+
+    #MULTIPLAYER BACKGROUND EVENT INJECTION
+    next_event_id = @events.keys.empty? ? 1 : @events.keys.max + 1
+    @events[next_event_id] = Game_Event.new(@map_id, Game_Map.getTemplateEvent,self)
+
     @common_events        = {}
     for i in 1...$data_common_events.size
       @common_events[i]   = Game_CommonEvent.new(i)

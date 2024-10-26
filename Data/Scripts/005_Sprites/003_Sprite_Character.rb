@@ -137,6 +137,18 @@ class Sprite_Character < RPG::Sprite
   end
 
   def updateCharacterBitmap
+    if @character_name.start_with?("Multiplayer_")
+      puts "Detected multiplayer event!"
+      arr = @character_name.split('_')
+      player_id = arr[1].to_i
+      
+      bitmap = AnimatedBitmap.new('Graphics/Characters/player/clothes/temp/clothes_walk_temp', @character_hue)
+      
+      clothing_data = EventManager.get_graphics_by_id(player_id)
+
+      bitmap.bitmap=ClothingUtils.generateClothedBitmap(clothing_data, @character.direction, @character.pattern)
+      return bitmap
+    end
     AnimatedBitmap.new('Graphics/Characters/' + @character_name, @character_hue)
   end
 
