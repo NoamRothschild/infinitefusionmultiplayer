@@ -37,7 +37,7 @@ class EventManager
       @@graphics[player_id] = graphics
     end
     
-    rf_event.character_name = "Multiplayer_#{player_id}"
+    rf_event.character_name = "Multiplayer_#{player_id}_#{rand(1000..9999)}"
 
     @@events[player_id] = rf_event
     rf_event

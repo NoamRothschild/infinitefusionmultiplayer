@@ -18,7 +18,12 @@ class ConnectionHandler
         puts "An error has occured while trying to get database info.\n Make sure all details are placed correctly"
       end
     end
-    $conn = Redis.new(host: host, port: port, password: password)
+
+    begin
+      $conn = Redis.new(host: host, port: port, password: password)
+    rescue Exception => e
+      pbMessage("Database credentials are not valid, #{e}")
+    end
     $conn
   end
 
@@ -98,6 +103,7 @@ class ConnectionHandler
 
         if data["x"] == -1 and data["y"] == -1
           puts "player #{data['player_id']} moved into another map, deleting event..."
+          ev = EventManager.get_event_by_id(data["player_id"])
           EventManager.delete_event(ev, data["map_id"], data["player_id"])
 
         elsif EventManager.exists?(data["player_id"])
@@ -107,7 +113,8 @@ class ConnectionHandler
             EventManager.set_graphics_by_id(data["player_id"], data["graphic"])
 
             #Refresh player graphic
-            ev.character_name = "Multiplayer_#{data['player_id']}"
+            #ev.character_name = "player/clothes/temp/clothes_walk_temp"
+            ev.character_name = "Multiplayer_#{data['player_id']}_#{rand(1000..9999)}"
           end
 
           EventManager.walkto(ev, data["x"], data["y"], data["direction"])

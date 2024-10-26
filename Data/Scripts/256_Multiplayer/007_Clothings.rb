@@ -18,6 +18,16 @@ class ClothingUtils
     outfitFilename = getOverworldOutfitFilename(Settings::PLAYER_TEMP_OUTFIT_FALLBACK) if !pbResolveBitmap(outfitFilename)
     hairFilename = getOverworldHairFilename(trainer_data['hair'])
     hatFilename = getOverworldHatFilename(trainer_data['hat'])
+
+    if action == "surf"
+      surfMon = Settings::PLAYER_GRAPHICS_FOLDER + Settings::PLAYER_SURFBASE_FOLDER + trainer_data['surfing_pokemon']
+      baseSurf = AnimatedBitmap.new(surfMon)
+      baseSurfBitmap = baseSurf.bitmap.clone
+
+      baseSurfBitmap.blt(0, 0, baseSprite.bitmap, baseSprite.bitmap.rect)
+      
+      baseBitmap = baseSurfBitmap
+    end
   
     # Use default values if color shifts are not set
     hair_color_shift = trainer_data['hair_color'] || 0

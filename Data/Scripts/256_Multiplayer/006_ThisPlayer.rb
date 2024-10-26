@@ -16,8 +16,11 @@ class ThisPlayer
       :hair             => $Trainer.hair,
       :hair_color       => $Trainer.hair_color,
       :hat              => $Trainer.hat,
-      :hat_color        => $Trainer.hat_color
+      :hat_color        => $Trainer.hat_color,
     }
+    if $action == "surf"
+      data[:graphic][:surfing_pokemon] = $surfing_pokemon 
+    end
     data
   end
 

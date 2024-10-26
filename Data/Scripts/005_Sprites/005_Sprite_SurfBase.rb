@@ -50,6 +50,7 @@ class Sprite_SurfBase
       action = "surfmon" if type == :SURF
       path = "#{basePath}#{action}_#{shape.to_s}"
     end
+    $surfing_pokemon = path.gsub(Settings::PLAYER_GRAPHICS_FOLDER + Settings::PLAYER_SURFBASE_FOLDER, '')
     return AnimatedBitmap.new(path)
   end
 
