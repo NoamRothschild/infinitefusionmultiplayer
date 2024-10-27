@@ -99,31 +99,43 @@ class ConnectionHandler
     begin
       return if (data == nil) || (data["player_id"] == $Trainer.id)
 
+      player_id = data["player_id"]
+
       if data["map_id"] == $game_map.map_id
 
         if data["x"] == -1 and data["y"] == -1
-          puts "player #{data['player_id']} moved into another map, deleting event..."
-          ev = EventManager.get_event_by_id(data["player_id"])
-          EventManager.delete_event(ev, data["map_id"], data["player_id"])
+          puts "player #{player_id} moved into another map, deleting event..."
+          ev = EventManager.get_event_by_id(player_id)
+          EventManager.delete_event(ev, data["map_id"], player_id)
 
-        elsif EventManager.exists?(data["player_id"])
-          ev = EventManager.get_event_by_id(data["player_id"])
+        elsif EventManager.exists?(player_id)
+          ev = EventManager.get_event_by_id(player_id)
 
-          if EventManager.get_graphics_by_id(data["player_id"]) != data["graphic"]
-            EventManager.set_graphics_by_id(data["player_id"], data["graphic"])
+          if EventManager.get_graphics_by_id(player_id) != data["graphic"]
+            EventManager.set_graphics_by_id(player_id, data["graphic"])
 
             #Refresh player graphic
-            #ev.character_name = "player/clothes/temp/clothes_walk_temp"
-            ev.character_name = "Multiplayer_#{data['player_id']}_#{rand(1000..9999)}"
+            ev.character_name = "Multiplayer_#{player_id}_#{rand(1000..9999)}"
+          end
+          
+          old_thr = EventManager.get_walk_threads_by_id(player_id)
+          if !old_thr.nil? && old_thr.alive?
+            old_thr.kill
           end
 
-          EventManager.walkto(ev, data["x"], data["y"], data["direction"])
+          walkThread = Thread.new do
+            EventManager.walkto(ev, data["x"], data["y"]); sleep 0.2 until [ev.x, ev.y] == [data["x"], data["y"]]
+            EventManager.rotate_direction(ev, data["direction"])
+          end
+
+          EventManager.set_walk_threads_by_id(player_id, walkThread)
+
         else
           # New player -> create a new event
 
-          ev = EventManager.create_event(data["player_id"], data["graphic"], data["x"], data["y"])
+          ev = EventManager.create_event(player_id, data["graphic"], data["x"], data["y"])
           EventManager.rotate_direction(ev, data["direction"])
-          puts "created event for player #{data["player_id"]}"
+          puts "created event for player #{player_id}"
           # send my location
           $conn.publish('location', ThisPlayer.generate_player_data)
         end

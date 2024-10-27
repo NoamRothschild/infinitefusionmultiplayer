@@ -6,6 +6,9 @@ class EventManager
   @@graphics = Hash.new
   # { player_id => {action, skin_tone, hat...} }
 
+  @@walk_threads = Hash.new
+  # { player_id => Thread.new }
+
   # Usage: EventManager.new(player_id, graphics, x, y) - (creates an event for the specified player)
   def self.create_event(player_id, graphics, x=-1, y=-1)
     map_id = $game_map.map_id
@@ -45,10 +48,20 @@ class EventManager
 
   # Usage: walks a given event to position (x, y)
   # Note: pbMoveRoute runs on a seperate thread which means we miss some of its calls when going bulk 
-  def self.walkto(rf_event, x, y, direction=2)
+  def self.walkto(rf_event, x, y, state="walk", direction=2)
 
     distanceX = x - rf_event.x
     distanceY = y - rf_event.y
+    
+    case state
+    when "walk"
+      speed = 3
+    when "bike"
+      speed = 5
+    else
+      #run, surf & dive
+      speed = 4
+    end
 
     if distanceX.zero? && distanceY.zero?
       rotate_direction(rf_event, direction)
@@ -65,6 +78,8 @@ class EventManager
 
     (1..distanceX.abs).each { |_|
       pbMoveRoute(rf_event, [
+        PBMoveRoute::ChangeSpeed, speed, 
+        PBMoveRoute::ChangeFreq, 6,
         PBMoveRoute::ThroughOn,
         xDir
       ], true)
@@ -72,20 +87,14 @@ class EventManager
     
     (1..distanceY.abs).each { |_|
       pbMoveRoute(rf_event, [
+        PBMoveRoute::ChangeSpeed, speed, 
+        PBMoveRoute::ChangeFreq, 6,
         PBMoveRoute::ThroughOn,
         yDir
       ], true)
     }
 
-    rotate_direction(rf_event, direction)
-
-    # Auto teleports the event to where it needs to be if he didn't get there due to the above menioned bug
-    Thread.new do
-      sleep 0.2
-      if rf_event.x != x || rf_event.y != y
-        rf_event.moveto(x, y) # built in function to force-tp event
-      end
-    end
+    #rotate_direction(rf_event, direction)
   end
 
   # Usage: rotates the event to the given direction
@@ -152,6 +161,17 @@ class EventManager
 
   def self.set_graphics_by_id(player_id, graphic)
     @@graphics[player_id] = graphic
+  end
+
+  def self.get_walk_threads_by_id(player_id)
+    if @@walk_threads.key?(player_id)
+      return @@walk_threads[player_id]
+    end
+    nil
+  end
+
+  def self.set_walk_threads_by_id(player_id, thread)
+    @@walk_threads[player_id] = thread
   end
 
 end
