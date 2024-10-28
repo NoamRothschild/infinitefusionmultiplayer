@@ -59,8 +59,13 @@ class ConnectionHandler
     until $msg_queue.empty?
       msg = $msg_queue.pop
 
-      if msg.key?('msg')
-        pbMessage("#{msg['msg']}")
+      if msg.key?('pbMsg')
+        #puts "displaying message: #{msg['pbMsg']}"
+        pbMsg = msg['pbMsg']
+        msgwindow = pbCreateMessageWindow(nil, nil)
+        pbMessageDisplay(msgwindow, pbMsg)
+        pbDisposeMessageWindow(msgwindow)
+        Input.update
       else
         ConnectionHandler.handle_location_packet(msg)
       end
@@ -69,7 +74,7 @@ class ConnectionHandler
   end
   
   def self.pbMessage(message)
-    $msg_queue << {'msg'=>"pbMessage('#{message}')"}
+    $msg_queue << {'pbMsg'=>message}
   end
 
   def self.handle_gift_packet(data)
@@ -91,7 +96,7 @@ class ConnectionHandler
         storedPlace = "PC"
       end
 
-      $msg_queue << {'msg'=> "#{sender} sent you his #{pkmn.name}!, it's waiting for you in your #{storedPlace}."}
+      $msg_queue << {'pbMsg'=> "#{sender} sent you his #{pkmn.name}!, it's waiting for you in your #{storedPlace}."}
     end
   end
 
