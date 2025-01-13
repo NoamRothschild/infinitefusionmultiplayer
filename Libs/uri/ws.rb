@@ -1,5 +1,5 @@
 # frozen_string_literal: false
-# = ws.rb
+# = uri/ws.rb
 #
 # Author:: Matt Muller <mamuller@amazon.com>
 # License:: You can redistribute it and/or modify it under the same term as Ruby.

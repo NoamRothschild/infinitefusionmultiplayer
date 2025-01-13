@@ -1,0 +1,1 @@
+require_relative "connection_pool-2.5.0/lib/connection_pool"

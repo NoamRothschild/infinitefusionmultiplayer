@@ -1,5 +1,5 @@
 # frozen_string_literal: false
-# = ldap.rb
+# = uri/ldap.rb
 #
 # Author::
 #  Takaaki Tateishi <ttate@jaist.ac.jp>

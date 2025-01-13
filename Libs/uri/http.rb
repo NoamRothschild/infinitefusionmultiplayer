@@ -1,5 +1,5 @@
 # frozen_string_literal: false
-# = http.rb
+# = uri/http.rb
 #
 # Author:: Akira Yamada <akira@ruby-lang.org>
 # License:: You can redistribute it and/or modify it under the same term as Ruby.
@@ -85,7 +85,7 @@ module URI
     # == Description
     #
     # Returns the authority for an HTTP uri, as defined in
-    # https://datatracker.ietf.org/doc/html/rfc3986/#section-3.2.
+    # https://www.rfc-editor.org/rfc/rfc3986#section-3.2.
     #
     #
     # Example:
@@ -106,7 +106,7 @@ module URI
     # == Description
     #
     # Returns the origin for an HTTP uri, as defined in
-    # https://datatracker.ietf.org/doc/html/rfc6454.
+    # https://www.rfc-editor.org/rfc/rfc6454.
     #
     #
     # Example:
