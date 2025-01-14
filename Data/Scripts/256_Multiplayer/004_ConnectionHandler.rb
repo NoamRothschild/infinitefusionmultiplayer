@@ -110,44 +110,32 @@ class ConnectionHandler
 
         if data["x"] == -1 and data["y"] == -1
           puts "[IFM] - player #{player_id} moved into another map, deleting event..."
-          #ev = EventManager.get_event_by_id(player_id)
-          #EventManager.delete_event(ev, data["map_id"], player_id)
           ev = Ifm_Event.get_event(player_id)
           ev.delete
 
-        #elsif EventManager.exists?(player_id)
-        #  ev = EventManager.get_event_by_id(player_id)
         elsif ev = Ifm_Event.get_event(player_id)
 
-          #if EventManager.get_graphics_by_id(player_id) != data["graphic"]
-            #EventManager.set_graphics_by_id(player_id, data["graphic"])
           if ev.graphics != data["graphic"]
             ev.refresh_graphics(data["graphic"])
             #Refresh player graphic
             ev.event.character_name = "Multiplayer_#{player_id}_#{rand(1000..9999)}"
           end
           
-          #old_thr = EventManager.get_walk_threads_by_id(player_id)
           old_thr = ev.walk_thread
           if !old_thr.nil? && old_thr.alive?
             old_thr.kill
           end
 
           walkThread = Thread.new do
-            #EventManager.walkto(ev, data["x"], data["y"]); sleep 0.2 until [ev.x, ev.y] == [data["x"], data["y"]]
-            #EventManager.rotate_direction(ev, data["direction"])
             ev.walkto(data["x"], data["y"], data["graphic"]["action"]); sleep 0.2 until [ev.event.x, ev.event.y] == [data["x"], data["y"]]
             ev.rotate(data["direction"])
           end
 
-          #EventManager.set_walk_threads_by_id(player_id, walkThread)
           ev.walk_thread = walkThread
 
         else
           # New player -> create a new event
 
-          #ev = EventManager.create_event(player_id, data["graphic"], data["x"], data["y"])
-          #EventManager.rotate_direction(ev, data["direction"])
           ev = Ifm_Event.new(player_id, data["graphic"], data["x"], data["y"])
           ev.rotate(data["direction"])
 

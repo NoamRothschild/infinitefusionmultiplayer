@@ -3,12 +3,6 @@ class EventManager
   @@events = Hash.new
   # { player_id => rf_event }
 
-  @@graphics = Hash.new
-  # { player_id => {action, skin_tone, hat...} }
-
-  @@walk_threads = Hash.new
-  # { player_id => Thread.new }
-
   # Usage: EventManager.create_event(player_id, graphics, x, y) - (creates an event for the specified player)
   def self.create_event(graphics_fname, x=-1, y=-1, map_id = nil, event_name=nil, event_identifier = nil, behavior_script = nil, cache_instance = true)
     map_id ||= $game_map.map_id
@@ -19,7 +13,6 @@ class EventManager
     rf_event = Rf.create_event(map_id) do |event|
       
       event.x, event.y = (x.negative? && y.negative?) ? [0, 0] : [x, y]
-      #event.name = "ifmClient_#{player_id}"
       event.name = event_name
 
       # Create page
@@ -29,7 +22,6 @@ class EventManager
       list = page.list
 
       # Add behavior
-      #Compiler.push_script(list, "PlayerInterractMenu.call(#{player_id})")
       Compiler.push_script(list, behavior_script)
       Compiler.push_end(list)
 
@@ -37,16 +29,6 @@ class EventManager
       event.pages = [page]
     end
 
-=begin
-    if @@events.key?(player_id)
-      Rf.delete_event(@@events[player_id], map_id)
-    end
-    
-    if !@@graphics.key?(player_id) || @@graphics[player_id] != graphics
-      @@graphics[player_id] = graphics
-    end
-=end
-    #rf_event.character_name = "Multiplayer_#{player_id}_#{rand(1000..9999)}"
     rf_event.character_name = graphics_fname
 
     @@events[event_identifier] = rf_event if cache_instance
@@ -100,8 +82,6 @@ class EventManager
         yDir
       ], true)
     }
-
-    #rotate_direction(rf_event, direction)
   end
 
   # Usage: rotates the event to the given direction
@@ -114,73 +94,40 @@ class EventManager
     ])
   end
 
+#===============================================================================
+# Caching utils
+#===============================================================================
+
+  def self.get_event_by_id(event_identifier)
+    if exists?(event_identifier)
+      return @@events[event_identifier]
+    end
+    nil
+  end
+  
+  def self.exists?(event_identifier)
+    @@events.key?(event_identifier)
+  end
+
   # Deletes all *references* to events (for wiping out events from old maps)
   def self.cleanEventList
-    @@events.each do |player_id, _|
-      @@events.delete(player_id)
+    @@events.each do |event_identifier, _|
+      @@events.delete(event_identifier)
     end
   end
 
-  def self.delete_all()
-    @@events.each do |player_id, rf_event|
+  def self.delete_all
+    @@events.each do |event_identifier, rf_event|
       Rf.delete_event(rf_event, $game_map.map_id)
-      @@events.delete(player_id)
+      @@events.delete(event_identifier)
     end
   end
 
-  def self.mapChangeThread
-    map_id = $game_map.map_id
-    thread = Thread.new do
-      while true
-        if map_id != $game_map.map_id
-          cleanEventList
-          $conn.publish('location', "{\"x\":-1,\"y\":-1,\"direction\":2,\"map_id\":#{map_id},\"player_id\":#{$Trainer.id}, \"action\":\"walk\"}")
-          map_id = $game_map.map_id
-        end
-        sleep 0.2
-      end
-    end
-    thread
-  end
-
-  def self.exists?(player_id)
-    @@events.key?(player_id)
-  end
-
-  def self.delete_event(ev, map_id, player_id)
+  def self.delete_event(ev, map_id, event_identifier)
     Rf.delete_event(ev, map_id)
-    if @@events.key?(player_id)
-      @@events.delete(player_id)
+    if @@events.key?(event_identifier)
+      @@events.delete(event_identifier)
     end
-  end
-
-  def self.get_event_by_id(player_id)
-    if exists?(player_id)
-      return @@events[player_id]
-    end
-    nil
-  end
-
-  def self.get_graphics_by_id(player_id)
-    if @@graphics.key?(player_id)
-      return @@graphics[player_id]
-    end
-    nil
-  end
-
-  def self.set_graphics_by_id(player_id, graphic)
-    @@graphics[player_id] = graphic
-  end
-
-  def self.get_walk_threads_by_id(player_id)
-    if @@walk_threads.key?(player_id)
-      return @@walk_threads[player_id]
-    end
-    nil
-  end
-
-  def self.set_walk_threads_by_id(player_id, thread)
-    @@walk_threads[player_id] = thread
   end
 
 end

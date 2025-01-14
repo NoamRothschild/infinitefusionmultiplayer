@@ -8,7 +8,6 @@ class Ifm_Event
   attr_reader :graphics
   attr_reader :event
 
-
   # @param player: int
   # @param graphics: {}
   def initialize(player_id, graphics, x=-1, y=-1)

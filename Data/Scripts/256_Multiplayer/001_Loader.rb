@@ -9,7 +9,6 @@ class MultiplayerLoader
 
     if @@enabled == true && val == false
       puts "[IFM] - Disabling multiplayer..."
-      #EventManager.delete_all
       Ifm_Event.delete_all
       @@tick_thread.kill
       @@map_change_thread.kill
