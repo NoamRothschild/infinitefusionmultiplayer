@@ -136,12 +136,12 @@ class ConnectionHandler
           walkThread = Thread.new do
             #EventManager.walkto(ev, data["x"], data["y"]); sleep 0.2 until [ev.x, ev.y] == [data["x"], data["y"]]
             #EventManager.rotate_direction(ev, data["direction"])
-            ev.walkto(data["x"], data["y"], data["graphic"]["action"]); sleep 0.2 until [ev.x, ev.y] == [data["x"], data["y"]]
+            ev.walkto(data["x"], data["y"], data["graphic"]["action"]); sleep 0.2 until [ev.event.x, ev.event.y] == [data["x"], data["y"]]
             ev.rotate(data["direction"])
           end
 
           #EventManager.set_walk_threads_by_id(player_id, walkThread)
-          ev.walk_thread = walk_thread
+          ev.walk_thread = walkThread
 
         else
           # New player -> create a new event

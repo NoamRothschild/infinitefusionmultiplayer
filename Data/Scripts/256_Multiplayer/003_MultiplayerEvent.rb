@@ -3,6 +3,12 @@ class Ifm_Event
   @@instances = {}
   @@events_map = 0
 
+  attr_accessor :walk_thread
+  attr_reader :map_id
+  attr_reader :graphics
+  attr_reader :event
+
+
   # @param player: int
   # @param graphics: {}
   def initialize(player_id, graphics, x=-1, y=-1)
@@ -88,21 +94,4 @@ class Ifm_Event
       EventManager.delete_event(player_id)
       @@instances.delete(player_id)
   end
-
-  def map_id
-      @map_id
-  end
-  def graphics
-      @graphics
-  end
-  def event
-      @event
-  end
-  def walk_thread
-      @walk_thread
-  end
-  def walk_thread=(thread)
-      @walk_thread = thread
-  end
-
 end
