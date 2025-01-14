@@ -59,7 +59,9 @@ class Ifm_Event
       while true
         if map_id != $game_map.map_id
           cleanEventList
-          $conn.publish('location', "{\"x\":-1,\"y\":-1,\"direction\":2,\"map_id\":#{map_id},\"player_id\":#{$Trainer.id}, \"action\":\"walk\"}")
+          last_msg = ThisPlayer.generate_player_data_hash
+          last_msg.merge!({ x: -1, y: -1, map_id: map_id })
+          $conn.publish('location', JSON.dump(last_msg))
           map_id = $game_map.map_id
         end
         sleep 0.2
@@ -90,7 +92,7 @@ class Ifm_Event
   end
 
   def delete
-      EventManager.delete_event(player_id)
-      @@instances.delete(player_id)
+      Rf.delete_event(@event, @map_id)
+      @@instances.delete(@player_id)
   end
 end

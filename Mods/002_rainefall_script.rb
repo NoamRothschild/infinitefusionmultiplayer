@@ -124,6 +124,6 @@ module Rf
   def self.delete_event(ev, map_id)
       $scene.spriteset().delete_character(ev)
       $MapFactory.getMapNoAdd(map_id).events.delete(ev.id)
-      puts "deleted event at #{map_id}"
+      puts "[Rainefall] - deleted event at map #{map_id}"
   end
 end
