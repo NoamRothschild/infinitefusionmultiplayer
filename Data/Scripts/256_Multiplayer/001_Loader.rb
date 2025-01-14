@@ -8,8 +8,9 @@ class MultiplayerLoader
     return if val != true && val != false
 
     if @@enabled == true && val == false
-      puts "Disabling multiplayer..."
-      EventManager.delete_all
+      puts "[IFM] - Disabling multiplayer..."
+      #EventManager.delete_all
+      Ifm_Event.delete_all
       @@tick_thread.kill
       @@map_change_thread.kill
       @@subscribe_thread.kill
@@ -32,7 +33,7 @@ class MultiplayerLoader
     ConnectionHandler.create_connection if $conn.nil?
 
     @@subscribe_thread = ConnectionHandler.subscribe($conn) if @@subscribe_thread.nil?
-    @@map_change_thread = EventManager.mapChangeThread if @@map_change_thread.nil?
+    @@map_change_thread = Ifm_Event.mapChangeThread if @@map_change_thread.nil?
     if @@tick_thread.nil?
       @@tick_thread = Thread.new do
         while true
@@ -41,7 +42,7 @@ class MultiplayerLoader
         end
       end
     end
-    puts "Thread publisher started!"
+    puts "[IFM] - Thread publisher started!"
   end
 
 end

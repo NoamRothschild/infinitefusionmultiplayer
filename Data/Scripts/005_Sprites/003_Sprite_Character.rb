@@ -146,7 +146,12 @@ class Sprite_Character < RPG::Sprite
       
       bitmap = AnimatedBitmap.new('Graphics/Characters/player/clothes/temp/clothes_walk_temp', @character_hue)  
       
-      clothing_data = EventManager.get_graphics_by_id(player_id)
+      unless (ev = Ifm_Event.get_event(player_id))
+        return bitmap
+      end
+
+      clothing_data = ev.graphics
+
       if clothing_data.nil?
         return bitmap
       end

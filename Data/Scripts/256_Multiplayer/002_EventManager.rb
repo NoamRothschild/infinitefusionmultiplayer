@@ -9,14 +9,18 @@ class EventManager
   @@walk_threads = Hash.new
   # { player_id => Thread.new }
 
-  # Usage: EventManager.new(player_id, graphics, x, y) - (creates an event for the specified player)
-  def self.create_event(player_id, graphics, x=-1, y=-1)
-    map_id = $game_map.map_id
+  # Usage: EventManager.create_event(player_id, graphics, x, y) - (creates an event for the specified player)
+  def self.create_event(graphics_fname, x=-1, y=-1, map_id = nil, event_name=nil, event_identifier = nil, behavior_script = nil, cache_instance = true)
+    map_id ||= $game_map.map_id
+    event_identifier ||= rand(1000..9999)
+    event_name ||= "CustomEvent#{event_identifier}"
+    behavior_script ||= ""
 
     rf_event = Rf.create_event(map_id) do |event|
       
       event.x, event.y = (x.negative? && y.negative?) ? [0, 0] : [x, y]
-      event.name = "ifmClient_#{player_id}"
+      #event.name = "ifmClient_#{player_id}"
+      event.name = event_name
 
       # Create page
       page = RPG::Event::Page.new
@@ -25,13 +29,15 @@ class EventManager
       list = page.list
 
       # Add behavior
-      Compiler.push_script(list, "PlayerInterractMenu.call(#{player_id})")
+      #Compiler.push_script(list, "PlayerInterractMenu.call(#{player_id})")
+      Compiler.push_script(list, behavior_script)
       Compiler.push_end(list)
 
       # Save
       event.pages = [page]
     end
 
+=begin
     if @@events.key?(player_id)
       Rf.delete_event(@@events[player_id], map_id)
     end
@@ -39,10 +45,11 @@ class EventManager
     if !@@graphics.key?(player_id) || @@graphics[player_id] != graphics
       @@graphics[player_id] = graphics
     end
-    
-    rf_event.character_name = "Multiplayer_#{player_id}_#{rand(1000..9999)}"
+=end
+    #rf_event.character_name = "Multiplayer_#{player_id}_#{rand(1000..9999)}"
+    rf_event.character_name = graphics_fname
 
-    @@events[player_id] = rf_event
+    @@events[event_identifier] = rf_event if cache_instance
     rf_event
   end
 
@@ -142,7 +149,9 @@ class EventManager
 
   def self.delete_event(ev, map_id, player_id)
     Rf.delete_event(ev, map_id)
-    @@events.delete(player_id)
+    if @@events.key?(player_id)
+      @@events.delete(player_id)
+    end
   end
 
   def self.get_event_by_id(player_id)
