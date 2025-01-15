@@ -61,7 +61,7 @@ class Ifm_Event
           cleanEventList
           last_msg = ThisPlayer.generate_player_data_hash
           last_msg.merge!({ x: -1, y: -1, map_id: map_id })
-          $conn.publish('location', JSON.dump(last_msg))
+          ConnectionHandler.publish('location', JSON.dump(last_msg))
           map_id = $game_map.map_id
         end
         sleep 0.2

@@ -29,9 +29,9 @@ class MultiplayerLoader
   end
 
   def self.activate
-    ConnectionHandler.create_connection if $conn.nil?
+    ConnectionHandler.bind if ConnectionHandler.connection.nil?
 
-    @@subscribe_thread = ConnectionHandler.subscribe($conn) if @@subscribe_thread.nil?
+    @@subscribe_thread = ConnectionHandler.subscribe() if @@subscribe_thread.nil?
     @@map_change_thread = Ifm_Event.mapChangeThread if @@map_change_thread.nil?
     if @@tick_thread.nil?
       @@tick_thread = Thread.new do

@@ -39,7 +39,7 @@ class ThisPlayer
         data[:map_id] = $last_dumped_loc[:map_id]
         data[:x] = 0
         data[:y] = 0
-        ConnectionHandler.send_updated_location(JSON.dump(data))
+        ConnectionHandler.publish('location', JSON.dump(data))
         $last_dumped_loc = generate_player_data_hash
         return ThisPlayer::MOVED_MAP
       end
@@ -52,7 +52,7 @@ class ThisPlayer
   def self.moveTick
     case moved?
     when ThisPlayer::MOVED_NONE then return nil
-    when ThisPlayer::MOVED_TRUE..ThisPlayer::MOVED_MAP then ConnectionHandler.send_updated_location(generate_player_data)
+    when ThisPlayer::MOVED_TRUE..ThisPlayer::MOVED_MAP then ConnectionHandler.publish('location', generate_player_data)
     end
   end
 

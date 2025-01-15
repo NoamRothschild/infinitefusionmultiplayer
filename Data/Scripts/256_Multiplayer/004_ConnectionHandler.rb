@@ -1,8 +1,7 @@
-$msg_queue = Queue.new
-
 class ConnectionHandler
-  # instantiates & returns a connection to the Redis Database.
-  def self.create_connection(host=nil, port=nil, password=nil)
+  @@connection = nil
+
+  def self.bind(host=nil, port=nil, password=nil)
     if host.nil? && port.nil? && password.nil?
       begin
         script_path = File.expand_path(__FILE__)
@@ -15,36 +14,35 @@ class ConnectionHandler
           password = contents['password']
         end
       rescue Exception => e
-        puts "[IFM] - An error has occured while trying to get database info.\n Make sure all details are placed correctly"
+        raise "[IFM] - An error has occured while trying to get database info.\nMake sure all details are placed correctly"
       end
     end
 
     begin
-      $conn = Redis.new(host: host, port: port, password: password)
+      @@connection = Redis.new(host: host, port: port, password: password)
     rescue Exception => e
-      pbMessage("Database credentials are not valid, #{e}")
+      raise "Database credentials are not valid, #{e}"
     end
-    $conn
+    @@connection
   end
 
-  # Listens for new incoming data
-  def self.subscribe(connection)
+  def self.subscribe()
     sub_cnt = 0
 
     subscribe_thread = Thread.new do
-      connection.subscribe('location', 'gifts') do |on|
+      @@connection.subscribe('location', 'gifts') do |on|
         on.subscribe { sub_cnt += 1 }
         on.message do |channel, msg|
           begin
             data = JSON.parse(msg)
             case channel
-            when 'location' then $msg_queue << data
+            when 'location' then Invoker.populate('move_packet', data)
               # Running this from a thread causes Segmentation Fault, 
               # data is being sent to an event which is always listening and executing from a safe place.
-            when 'gifts' then handle_gift_packet(data)
+            when 'gifts' then handle_gift(data)
             end
           rescue Exception => e
-            puts "[IFM] - Malformed message was sent"
+            puts "[IFM] - WARNING: Malformed message was sent."
           end
         end
       end
@@ -54,30 +52,17 @@ class ConnectionHandler
     subscribe_thread
   end
 
-  # This func always runs from an Event to allow for a safe execution place.
-  def self.message
-    until $msg_queue.empty?
-      msg = $msg_queue.pop
-
-      if msg.key?('pbMsg')
-        #puts "[IFM] - displaying message: #{msg['pbMsg']}"
-        pbMsg = msg['pbMsg']
-        msgwindow = pbCreateMessageWindow(nil, nil)
-        pbMessageDisplay(msgwindow, pbMsg)
-        pbDisposeMessageWindow(msgwindow)
-        Input.update
-      else
-        ConnectionHandler.handle_location_packet(msg)
-      end
-      
-    end
-  end
-  
-  def self.pbMessage(message)
-    $msg_queue << {'pbMsg'=>message}
+  def self.publish(channel, message)
+    return false if @@connection.nil?
+    @@connection.publish(channel, message)
+    true
   end
 
-  def self.handle_gift_packet(data)
+  def self.connection
+    @@connection
+  end
+
+  def self.handle_gift(data)
     data.each do |player_ids, gifted_data|
       receiver, sender = player_ids.split('_')
       break if receiver.to_s != $Trainer.id.to_s
@@ -96,11 +81,11 @@ class ConnectionHandler
         storedPlace = "PC"
       end
 
-      $msg_queue << {'pbMsg'=> "#{sender} sent you his #{pkmn.name}!, it's waiting for you in your #{storedPlace}."}
+      Invoker.populate('msgBox', "#{sender} sent you his #{pkmn.name}!, it's waiting for you in your #{storedPlace}.")
     end
   end
 
-  def self.handle_location_packet(data)
+  def self.handle_location(data)
     begin
       return if (data == nil) || (data["player_id"] == $Trainer.id)
 
@@ -118,7 +103,6 @@ class ConnectionHandler
           if ev.graphics != data["graphic"]
             ev.refresh_graphics(data["graphic"])
             #Refresh player graphic
-            ev.event.character_name = "Multiplayer_#{player_id}_#{rand(1000..9999)}"
           end
           
           old_thr = ev.walk_thread
@@ -141,7 +125,7 @@ class ConnectionHandler
 
           puts "[IFM] - created event for player #{player_id}"
           # send my location
-          $conn.publish('location', ThisPlayer.generate_player_data)
+          ConnectionHandler.publish('location', ThisPlayer.generate_player_data)
         end
       end
     rescue Exception => e
@@ -149,11 +133,10 @@ class ConnectionHandler
     end
   end
 
-  def self.send_updated_location(connection=$conn, channel='location', message)
-    if $conn.nil?
-      $conn = create_connection
-      connection = $conn
-    end
-    connection.publish(channel, message)
-  end
 end
+
+def handle_location(data)
+  ConnectionHandler.handle_location(data)
+end
+
+Invoker.add_type('move_packet', :handle_location)

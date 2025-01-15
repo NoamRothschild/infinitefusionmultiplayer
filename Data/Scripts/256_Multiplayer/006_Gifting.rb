@@ -24,7 +24,7 @@ class PokemonPartyScreen
       if cmdGift >= 0 && command == cmdGift
         res = Hash.new
         res[to_player_id.to_s+"_"+$Trainer.name] = pkmn.to_json.to_s
-        ConnectionHandler.send_updated_location(connection=$conn, channel='gifts', message=JSON.dump(res))
+        ConnectionHandler.publish('gifts', JSON.dump(res))
         pbDisplay("Selected Pokémon has been sent to player #{to_player_id}!")
         @party.delete(pkmn)
         break
